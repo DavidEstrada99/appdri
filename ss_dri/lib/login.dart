@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_conditional_rendering/conditional.dart';
 import 'Student.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -9,10 +11,32 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _text = TextEditingController();
-  bool _validate = false;
+  final _textPwd = TextEditingController();
+  bool _validate = true;
+  bool _validatePwd = false;
+  bool _validUser = true;
+  int attemp = 0;
+  @override
+  void initState() {
+    super.initState();
+    _text.addListener(validateMyInput);
+    _textPwd.addListener(() {
+      if (_textPwd.text.isEmpty) {
+        setState(() {
+          _validatePwd = false;
+        });
+      } else {
+        setState(() {
+          _validatePwd = true;
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
     _text.dispose();
+    _textPwd.dispose();
     super.dispose();
   }
 
@@ -21,17 +45,16 @@ class _LoginState extends State<Login> {
     final content = Column(
       children: <Widget>[
         Container(
-          height: 150.0,
+          height: 80.0,
           width: 190.0,
           padding: EdgeInsets.only(top: 40),
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(200)),
           child: Center(
-            child: Image.asset('../asset/images/logo-ipn.png'),
+            child: Image.asset('asset/images/logo-ipn.png'),
           ),
         ),
         Padding(
           padding: EdgeInsets.all(10),
-          // margin: EdgeInsets.only(top: 300.0, left: 120.0),
           child: TextField(
             controller: _text,
             autofocus: true,
@@ -39,14 +62,14 @@ class _LoginState extends State<Login> {
             decoration: InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Email',
-              errorText: _validate ? 'Tiene que ser un email válido' : null,
+              errorText: !_validate ? 'Tiene que ser un email válido' : null,
             ),
           ),
         ),
         Padding(
           padding: EdgeInsets.all(10),
-          // margin: EdgeInsets.only(top: 30.0, left: 120.0),
           child: TextField(
+              controller: _textPwd,
               obscureText: true,
               decoration: InputDecoration(
                   border: OutlineInputBorder(),
@@ -63,30 +86,74 @@ class _LoginState extends State<Login> {
           height: 50,
           width: 250,
           decoration: BoxDecoration(
-              color: Color.fromARGB(255, 132, 43, 87),
+              color: _validate && _validatePwd
+                  ? Color.fromARGB(255, 132, 43, 87)
+                  : Colors.black12,
               borderRadius: BorderRadius.circular(20)),
           child: TextButton(
-            onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => StudentHome()));
-            },
+            onPressed: !_validate || !_validatePwd
+                ? null
+                : () {
+                    loginInput(_text.text, _textPwd.text);
+                  },
             child: Text(
               'Iniciar Sesión',
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
           ),
-        )
+        ),
+        Conditional.single(
+            context: context,
+            conditionBuilder: (BuildContext context) => _validUser,
+            widgetBuilder: (BuildContext context) => Text(''),
+            fallbackBuilder: (BuildContext context) => Container(
+                  height: 50,
+                  width: 50,
+                  child: Text(
+                    'Usuario o contraseña inválido',
+                    style: TextStyle(color: Colors.red, fontSize: 25),
+                  ),
+                ))
       ],
     );
     return content;
   }
 
-  bool validateMyInput(String input) {
+  void validateMyInput() {
     Pattern pattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
     RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(input))
-      return false;
-    else
-      return true;
+    setState(() {
+      if (attemp == 0) {
+        setState(() {
+          attemp++;
+          _validate = true;
+          _validUser = true;
+        });
+      } else {
+        !regex.hasMatch(_text.text) ? _validate = false : _validate = true;
+      }
+    });
+  }
+
+  Future loginInput(String emailInput, String passwordInput) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: emailInput, password: passwordInput);
+      setState(() {
+        _validUser = true;
+      });
+      Navigator.push(context, MaterialPageRoute(builder: (_) => StudentHome()));
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _validUser = false;
+      });
+      if (e.code == 'use-not-found') {
+        print('usuario o contraseña incorrectos');
+      } else if (e.code == 'wrong-password') {
+        print('usuario o contraseña incorrectos');
+      }
+    }
   }
 }

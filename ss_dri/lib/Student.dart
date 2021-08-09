@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 final Map<DateTime, List> _holidays = {
   DateTime(2021, 1, 1): ['New Year\'s Day'],
@@ -21,63 +22,83 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
   List _selectedEvents;
   AnimationController _animationController;
   CalendarController _calendarController;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final Stream<QuerySnapshot> _usersStream =
+      FirebaseFirestore.instance.collection('Eventos').snapshots();
+
+  Future buildEvents() async {
+    final firestoreInstance = FirebaseFirestore.instance;
+    try {
+      //Example event
+      // final _selectedDay = DateTime.now();
+      // _events = {
+      //   _selectedDay.subtract(Duration(days: 30)): [
+      //     'Event A0',
+      //     'Event B0',
+      //     'Event C0'
+      //   ],
+      // };
+      firestoreInstance.collection("Eventos").get().then((querySnapshot) {
+        querySnapshot.docs.forEach((result) {
+          //por cada documento
+          var data = result.data();
+          List<DateTime> datetimeList = [];
+          String title = "";
+          String body = "";
+          int id = -1;
+          data.forEach((key, value) {
+            //por cada elemento en el documento
+            if (key == "eventDate") {
+              for (var day in value) {
+                //por cada fecha
+                var eventDate =
+                    new DateTime.fromMillisecondsSinceEpoch(day.seconds * 1000);
+                datetimeList.add(eventDate);
+              }
+            }
+            if (key == "title") {
+              title = value.toString();
+            }
+            if (key == "body") {
+              body = value.toString();
+            }
+            if (key == "id") {
+              id = value;
+            }
+          });
+          for (var date in datetimeList) {
+            //llenar el objeto
+            if (_events.containsKey(date)) {
+              _events.update(date, (value) {
+                var arr = [title, body, id];
+                var val = value;
+                val.add(arr);
+                return val;
+              });
+            } else {
+              var arr = [title, body, id];
+              _events.addAll({
+                date: [arr]
+              });
+            }
+          }
+          setState(() {
+            _events = _events;
+          });
+        });
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    buildEvents();
+    realTime();
     final _selectedDay = DateTime.now();
-    _events = {
-      _selectedDay.subtract(Duration(days: 30)): [
-        'Event A0',
-        'Event B0',
-        'Event C0'
-      ],
-      _selectedDay.subtract(Duration(days: 27)): ['Event A1'],
-      _selectedDay.subtract(Duration(days: 28)): [
-        'Event A2',
-        'Event B2',
-        'Event C2',
-        'Event D2'
-      ],
-      _selectedDay.subtract(Duration(days: 16)): ['Event A3', 'Event B3'],
-      _selectedDay.subtract(Duration(days: 10)): [
-        'Event A4',
-        'Event B4',
-        'Event C4'
-      ],
-      _selectedDay.subtract(Duration(days: 4)): [
-        'Event A5',
-        'Event B5',
-        'Event C5'
-      ],
-      _selectedDay.subtract(Duration(days: 2)): ['Event A6', 'Event B6'],
-      _selectedDay: ['Event A7', 'Event B7', 'Event C7', 'Event D7'],
-      _selectedDay.add(Duration(days: 1)): [
-        'Event A8',
-        'Event B8',
-        'Event C8',
-        'Event D8'
-      ],
-      _selectedDay.add(Duration(days: 3)):
-          Set.from(['Event A9', 'Event A9', 'Event B9']).toList(),
-      _selectedDay.add(Duration(days: 7)): [
-        'Event A10',
-        'Event B10',
-        'Event C10'
-      ],
-      _selectedDay.add(Duration(days: 11)): ['Event A11', 'Event B11'],
-      _selectedDay.add(Duration(days: 17)): [
-        'Event A12',
-        'Event B12',
-        'Event C12',
-        'Event D12'
-      ],
-      _selectedDay.add(Duration(days: 22)): ['Event A13', 'Event B13'],
-      _selectedDay.add(Duration(days: 26)): [
-        'Event A14',
-        'Event B14',
-        'Event C14'
-      ],
-    };
+    _events = {};
     _selectedEvents = _events[_selectedDay] ?? [];
     _calendarController = CalendarController();
     _animationController = AnimationController(
@@ -101,12 +122,126 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
 
   void _onVisibleDaysChanged(
       DateTime first, DateTime last, CalendarFormat format) {
-    print('CALLBACK: _onvisibeDaysChanged');
+    print('CALLBACK: _onvisibeDaysChanged $first $last $format');
   }
 
   void _onCalendarCreated(
       DateTime first, DateTime last, CalendarFormat format) {
     print('CALLBACK: _onCalendarCreated');
+  }
+
+  void realTime() {
+    _usersStream.listen((snapshotData) {
+      if (snapshotData.size <= 0) {
+        return;
+      }
+      var docsSnapshot = snapshotData.docChanges;
+      docsSnapshot.forEach((element) {
+        print(element.type);
+        if (element.type == DocumentChangeType.added ||
+            element.type == DocumentChangeType.modified) {
+          var docData = element.doc.data();
+          var docDataMap = Map<String, dynamic>.from(docData);
+          // print(docDataMap);
+          List<DateTime> datetimeList = [];
+          String title = "";
+          String body = "";
+          int id = -1;
+          docDataMap.forEach((key, value) {
+            //por cada elemento en el documento
+            if (key == "eventDate") {
+              for (var day in value) {
+                //por cada fecha
+                var eventDate =
+                    new DateTime.fromMillisecondsSinceEpoch(day.seconds * 1000);
+                datetimeList.add(eventDate);
+              }
+            }
+            if (key == "title") {
+              title = value.toString();
+            }
+            if (key == "body") {
+              body = value.toString();
+            }
+            if (key == "id") {
+              id = value;
+            }
+          });
+          print(datetimeList);
+          try {
+            var event = Map<DateTime, List<dynamic>>.from(_events);
+            for (var date in datetimeList) {
+              if (event.containsKey(date)) {
+                event.update(date, (value) {
+                  var val = value;
+                  if (value[0].runtimeType.toString() == "String" &&
+                      int.parse(value[2].toString()) == id) {
+                    var arr = [title, body, id];
+                    val = arr;
+                  } else if (value[0].runtimeType.toString() != "String") {
+                    for (var i = 0; i < value.length; i++) {
+                      if (value[i][2] == id) {
+                        val[i] = [title, body, id];
+                      }
+                    }
+                  }
+                  return val;
+                });
+              } else {
+                var arr = [title, body, id];
+                event.addAll({
+                  date: [arr]
+                });
+              }
+            }
+            setState(() {
+              _events = event;
+            });
+          } catch (e) {
+            print(e);
+          }
+        } else if (element.type == DocumentChangeType.removed) {
+          var docData = element.doc.data();
+          var docDataMap = Map<String, dynamic>.from(docData);
+          List<DateTime> datetimeList = [];
+          int id = -1;
+          docDataMap.forEach((key, value) {
+            //por cada elemento en el documento
+            if (key == "eventDate") {
+              for (var day in value) {
+                //por cada fecha
+                var eventDate =
+                    new DateTime.fromMillisecondsSinceEpoch(day.seconds * 1000);
+                datetimeList.add(eventDate);
+              }
+            }
+            if (key == "id") {
+              id = value;
+            }
+          });
+          for (var date in datetimeList) {
+            print(_events.containsKey(date));
+            if (_events.containsKey(date)) {
+              print("sí existe");
+              try {
+                _events.update(date, (value) {
+                  var list = value;
+                  print(list);
+                  list.removeWhere((element) => element[2] == id);
+                  print(list);
+                  return list;
+                });
+              } catch (e) {
+                print(e);
+              }
+            }
+          }
+          setState(() {
+            _events = _events;
+          });
+        }
+      });
+    });
   }
 
   @override
@@ -124,7 +259,6 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
             const SizedBox(
               height: 8.0,
             ),
-            _buildButtons(),
             const SizedBox(
               height: 8.0,
             ),
@@ -156,167 +290,6 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTableCalendarWithBuilders() {
-    return TableCalendar(
-      locale: 'p1_PL',
-      calendarController: _calendarController,
-      events: _events,
-      holidays: _holidays,
-      initialCalendarFormat: CalendarFormat.month,
-      formatAnimation: FormatAnimation.slide,
-      startingDayOfWeek: StartingDayOfWeek.sunday,
-      availableGestures: AvailableGestures.all,
-      availableCalendarFormats: const {
-        CalendarFormat.month: '',
-        CalendarFormat.week: '',
-      },
-      calendarStyle: CalendarStyle(
-        outsideDaysVisible: false,
-        weekendStyle: TextStyle().copyWith(color: Colors.blue[800]),
-        holidayStyle: TextStyle().copyWith(color: Colors.blue[800]),
-      ),
-      daysOfWeekStyle: DaysOfWeekStyle(
-        weekendStyle: TextStyle().copyWith(color: Colors.blue[600]),
-      ),
-      headerStyle: HeaderStyle(
-        centerHeaderTitle: true,
-        formatButtonVisible: false,
-      ),
-      builders: CalendarBuilders(
-        selectedDayBuilder: (context, date, _) {
-          return FadeTransition(
-            opacity: Tween(begin: 0.0, end: 1.0).animate(_animationController),
-            child: Container(
-              margin: const EdgeInsets.all(4.0),
-              padding: const EdgeInsets.only(top: 5.0, left: 6.0),
-              color: Colors.deepOrange[300],
-              width: 100,
-              height: 100,
-              child: Text(
-                '${date.day}',
-                style: TextStyle().copyWith(fontSize: 16.0),
-              ),
-            ),
-          );
-        },
-        todayDayBuilder: (context, date, _) {
-          return Container(
-            margin: const EdgeInsets.all(4.0),
-            padding: const EdgeInsets.only(top: 5.0, left: 6.0),
-            color: Colors.amber[400],
-            width: 100,
-            height: 100,
-            child: Text(
-              '${date.day}',
-              style: TextStyle().copyWith(fontSize: 16.0),
-            ),
-          );
-        },
-        markersBuilder: (context, date, events, holidays) {
-          final children = <Widget>[];
-
-          if (events.isNotEmpty) {
-            children.add(
-              Positioned(
-                right: 1,
-                bottom: 1,
-                child: _buildEventsMarker(date, events),
-              ),
-            );
-          }
-
-          if (holidays.isNotEmpty) {
-            children.add(
-              Positioned(
-                right: -2,
-                top: -2,
-                child: _buildHolidaysMarker(),
-              ),
-            );
-          }
-
-          return children;
-        },
-      ),
-      onDaySelected: (date, events, holidays) {
-        _onDaySelected(date, events, holidays);
-        _animationController.forward(from: 0.0);
-      },
-      onVisibleDaysChanged: _onVisibleDaysChanged,
-      onCalendarCreated: _onCalendarCreated,
-    );
-  }
-
-  Widget _buildEventsMarker(DateTime date, List events) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        shape: BoxShape.rectangle,
-        color: _calendarController.isSelected(date)
-            ? Colors.brown[300]
-            : Colors.blue[400],
-      ),
-      width: 16.0,
-      height: 16.0,
-      child: Center(
-        child: Text(
-          '${events.length}',
-          style: TextStyle().copyWith(color: Colors.white, fontSize: 12.0),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHolidaysMarker() {
-    return Icon(
-      Icons.add_box,
-      size: 20.0,
-      color: Colors.blueGrey[800],
-    );
-  }
-
-  Widget _buildButtons() {
-    final dateTime = _events.keys.elementAt(_events.length - 2);
-    return Column(
-      children: <Widget>[
-        ElevatedButton(
-          child: Text('Mes'),
-          onPressed: () {
-            setState(() {
-              _calendarController.setCalendarFormat(CalendarFormat.month);
-            });
-          },
-        ),
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _calendarController.setCalendarFormat(CalendarFormat.twoWeeks);
-              });
-            },
-            child: Text('2 semanas')),
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _calendarController.setCalendarFormat(CalendarFormat.week);
-              });
-            },
-            child: Text('Semanal')),
-        const SizedBox(
-          height: 8.0,
-        ),
-        ElevatedButton(
-            onPressed: () {
-              _calendarController.setSelectedDay(
-                DateTime(dateTime.year, dateTime.month, dateTime.day),
-                runCallback: true,
-              );
-            },
-            child: Text(
-                'Seleccionar día ${dateTime.day} ${dateTime.month} ${dateTime.day}')),
-      ],
-    );
-  }
-
   Widget _buildEventList() {
     return ListView(
       children: _selectedEvents
@@ -326,9 +299,44 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(12.0)),
                 margin:
                     const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: ListTile(
-                  title: Text(e.toString()),
-                  onTap: () => print('$e tapped!'),
+                // child: ListTile(
+                //   title: Text(e[0].toString()),
+                //   subtitle: Text(e[1].toString()),
+                //   onTap: () => print('$e tapped!'),
+                // ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.only(top: 5),
+                      child: Text(
+                        e[0].toString(),
+                        style: TextStyle(color: Colors.black, fontSize: 20),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 10),
+                      child: Text(
+                        e[1].toString(),
+                        style: TextStyle(color: Colors.black, fontSize: 18),
+                      ),
+                    ),
+                    Container(
+                        margin: EdgeInsets.only(left: 10, bottom: 10, top: 5),
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 132, 43, 87),
+                            borderRadius: BorderRadius.circular(20)),
+                        child: TextButton(
+                            onPressed: () =>
+                                print(e), //lanzar la suscripción a firebase
+                            child: Text(
+                              "Suscribirse",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            )))
+                  ],
                 ),
               ))
           .toList(),

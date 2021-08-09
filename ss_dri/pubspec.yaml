@@ -25,6 +25,13 @@ dependencies:
     sdk: flutter
   english_words: ^3.1.5
   table_calendar: ^2.3.3
+  flutter_launcher_icons: "^0.8.0"
+  firebase_core: ^1.0.4
+  firebase_auth: ^1.1.1
+  flutter_conditional_rendering: ^2.0.0
+  cloud_firestore: ^2.0.0
+  flutter_local_notifications: ^6.0.0
+  firebase_messaging: ^10.0.3
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -34,9 +41,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-assets:
-  asset/images
 
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/ipn.png"
+# assets:
+#     - asset/images/logo-ipn.png
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -47,6 +58,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - asset/images/logo-ipn.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
