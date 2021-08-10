@@ -299,11 +299,6 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(12.0)),
                 margin:
                     const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                // child: ListTile(
-                //   title: Text(e[0].toString()),
-                //   subtitle: Text(e[1].toString()),
-                //   onTap: () => print('$e tapped!'),
-                // ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
