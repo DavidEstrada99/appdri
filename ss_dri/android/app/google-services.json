@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "708851676443",
-    "project_id": "ssri-4ddeb",
-    "storage_bucket": "ssri-4ddeb.appspot.com"
+    "project_number": "190764251222",
+    "project_id": "a-dri-a1570",
+    "storage_bucket": "a-dri-a1570.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:708851676443:android:498f84a556d338a47f8fbe",
+        "mobilesdk_app_id": "1:190764251222:android:91a1f3fd532806fbcd23f7",
         "android_client_info": {
           "package_name": "com.ipn.ssdri"
         }
       },
       "oauth_client": [
         {
-          "client_id": "708851676443-gqg30sq9f0ngbjfmglccdqpdfutchuih.apps.googleusercontent.com",
+          "client_id": "190764251222-cg7k5ra3p0116qp7rfaa39f5sigdn9o0.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBXxtVZfCyEmGh5SsX3oyacaQRh7UJXjD8"
+          "current_key": "AIzaSyBhwGgAQYZ_AVSbLw7NwSFJ7zGDbBS6dJs"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "708851676443-gqg30sq9f0ngbjfmglccdqpdfutchuih.apps.googleusercontent.com",
+              "client_id": "190764251222-cg7k5ra3p0116qp7rfaa39f5sigdn9o0.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
