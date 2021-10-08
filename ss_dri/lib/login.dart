@@ -13,6 +13,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final _text = TextEditingController();
   final _textPwd = TextEditingController();
+  final auth = FirebaseAuth.instance;
   bool _validate = true;
   bool _validatePwd = false;
   bool _validUser = true;
@@ -77,13 +78,6 @@ class _LoginState extends State<Login> {
                   labelText: 'Contraseña',
                   hintText: 'Introduce la contraseña')),
         ),
-//        TextButton(
-//            onPressed: () {
-//              // Aquí va la ventana de olvidé mi contraseña
-//            },
-//            child: Text('Olvidé mi contraseña',
-//                style: TextStyle(color: Colors.black, fontSize: 15))
-//          ),
         Container(
           height: 50,
           width: 250,
@@ -104,6 +98,27 @@ class _LoginState extends State<Login> {
             ),
           ),
         ),
+        Container(
+          height: 50,
+          width: 250,
+          margin: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+              color: _validate && _validatePwd
+                  ? Color.fromARGB(255, 132, 43, 87)
+                  : Colors.black12,
+              borderRadius: BorderRadius.circular(20)),
+          child: TextButton(
+            onPressed: !_validate || !_validatePwd
+                ? null
+                : () {
+                    auth.createUserWithEmailAndPassword(email: _text.text, password: _textPwd.text);
+                  },
+            child: Text(
+              'Crear cuenta',
+              style: TextStyle(color: Colors.white, fontSize: 25),
+            ),
+          ),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -115,8 +130,8 @@ class _LoginState extends State<Login> {
             conditionBuilder: (BuildContext context) => _validUser,
             widgetBuilder: (BuildContext context) => Text(''),
             fallbackBuilder: (BuildContext context) => Container(
-                  height: 50,
-                  width: 50,
+                  height: 100,
+                  width: 300,
                   child: Text(
                     'Usuario o contraseña inválido',
                     style: TextStyle(color: Colors.red, fontSize: 25),
@@ -144,7 +159,7 @@ class _LoginState extends State<Login> {
   }
 
   Future loginInput(String emailInput, String passwordInput) async {
-    FirebaseAuth auth = FirebaseAuth.instance;
+    //FirebaseAuth auth = FirebaseAuth.instance;
     try {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
