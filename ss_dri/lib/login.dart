@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_conditional_rendering/conditional.dart';
 import 'Student.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'restorePws.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -76,12 +77,13 @@ class _LoginState extends State<Login> {
                   labelText: 'Contraseña',
                   hintText: 'Introduce la contraseña')),
         ),
-        TextButton(
-            onPressed: () {
-              // Aquí va la ventana de olvidé mi contraseña
-            },
-            child: Text('Olvidé mi contraseña',
-                style: TextStyle(color: Colors.black, fontSize: 15))),
+//        TextButton(
+//            onPressed: () {
+//              // Aquí va la ventana de olvidé mi contraseña
+//            },
+//            child: Text('Olvidé mi contraseña',
+//                style: TextStyle(color: Colors.black, fontSize: 15))
+//          ),
         Container(
           height: 50,
           width: 250,
@@ -101,6 +103,12 @@ class _LoginState extends State<Login> {
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
           ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(child: Text('Olvidé mi contraseña'), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => RestorePwd())) )
+          ]
         ),
         Conditional.single(
             context: context,
