@@ -112,6 +112,7 @@ class _LoginState extends State<Login> {
                 ? null
                 : () {
                     auth.createUserWithEmailAndPassword(email: _text.text, password: _textPwd.text);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => StudentHome()));
                   },
             child: Text(
               'Crear cuenta',
