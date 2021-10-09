@@ -4,6 +4,7 @@ import 'package:flutter_conditional_rendering/conditional.dart';
 import 'Student.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'restorePws.dart';
+import 'verify.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -111,8 +112,11 @@ class _LoginState extends State<Login> {
             onPressed: !_validate || !_validatePwd
                 ? null
                 : () {
-                    auth.createUserWithEmailAndPassword(email: _text.text, password: _textPwd.text);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => StudentHome()));
+                    /*auth.createUserWithEmailAndPassword(email: _text.text, password: _textPwd.text).then((_){
+                      //Navigator.push(context, MaterialPageRoute(builder: (_) => Verify()));
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Verify()));
+                    });*/
+                    singUp(_text.text, _textPwd.text);
                   },
             child: Text(
               'Crear cuenta',
@@ -135,7 +139,7 @@ class _LoginState extends State<Login> {
                   width: 300,
                   child: Text(
                     'Usuario o contraseña inválido',
-                    style: TextStyle(color: Colors.red, fontSize: 25),
+                    style: TextStyle(color: Colors.red, fontSize: 16),
                   ),
                 ))
       ],
@@ -178,6 +182,29 @@ class _LoginState extends State<Login> {
       } else if (e.code == 'wrong-password') {
         print('usuario o contraseña incorrectos');
       }
+    }
+  }
+
+  Future singUp(String _email, String _password) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
+          email: _email, password: _password);
+      setState(() {
+        _validUser = true;
+      });
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Verify()));
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _validUser = false;
+      });
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
     }
   }
 }
