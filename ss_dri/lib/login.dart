@@ -4,6 +4,7 @@ import 'package:flutter_conditional_rendering/conditional.dart';
 import 'Student.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'restorePws.dart';
+import 'verify.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -13,6 +14,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final _text = TextEditingController();
   final _textPwd = TextEditingController();
+  final auth = FirebaseAuth.instance;
   bool _validate = true;
   bool _validatePwd = false;
   bool _validUser = true;
@@ -77,13 +79,6 @@ class _LoginState extends State<Login> {
                   labelText: 'Contraseña',
                   hintText: 'Introduce la contraseña')),
         ),
-//        TextButton(
-//            onPressed: () {
-//              // Aquí va la ventana de olvidé mi contraseña
-//            },
-//            child: Text('Olvidé mi contraseña',
-//                style: TextStyle(color: Colors.black, fontSize: 15))
-//          ),
         Container(
           height: 50,
           width: 250,
@@ -104,6 +99,31 @@ class _LoginState extends State<Login> {
             ),
           ),
         ),
+        Container(
+          height: 50,
+          width: 250,
+          margin: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+              color: _validate && _validatePwd
+                  ? Color.fromARGB(255, 132, 43, 87)
+                  : Colors.black12,
+              borderRadius: BorderRadius.circular(20)),
+          child: TextButton(
+            onPressed: !_validate || !_validatePwd
+                ? null
+                : () {
+                    /*auth.createUserWithEmailAndPassword(email: _text.text, password: _textPwd.text).then((_){
+                      //Navigator.push(context, MaterialPageRoute(builder: (_) => Verify()));
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Verify()));
+                    });*/
+                    singUp(_text.text, _textPwd.text);
+                  },
+            child: Text(
+              'Crear cuenta',
+              style: TextStyle(color: Colors.white, fontSize: 25),
+            ),
+          ),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -115,11 +135,11 @@ class _LoginState extends State<Login> {
             conditionBuilder: (BuildContext context) => _validUser,
             widgetBuilder: (BuildContext context) => Text(''),
             fallbackBuilder: (BuildContext context) => Container(
-                  height: 50,
-                  width: 50,
+                  height: 100,
+                  width: 300,
                   child: Text(
                     'Usuario o contraseña inválido',
-                    style: TextStyle(color: Colors.red, fontSize: 25),
+                    style: TextStyle(color: Colors.red, fontSize: 16),
                   ),
                 ))
       ],
@@ -144,7 +164,7 @@ class _LoginState extends State<Login> {
   }
 
   Future loginInput(String emailInput, String passwordInput) async {
-    FirebaseAuth auth = FirebaseAuth.instance;
+    //FirebaseAuth auth = FirebaseAuth.instance;
     try {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
@@ -162,6 +182,29 @@ class _LoginState extends State<Login> {
       } else if (e.code == 'wrong-password') {
         print('usuario o contraseña incorrectos');
       }
+    }
+  }
+
+  Future singUp(String _email, String _password) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
+          email: _email, password: _password);
+      setState(() {
+        _validUser = true;
+      });
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Verify()));
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _validUser = false;
+      });
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
     }
   }
 }
