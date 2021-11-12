@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'Student.dart';
 import 'login.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -100,6 +101,10 @@ class _MyAppState extends State<MyApp> {
         ),
         body: new Login(),
       ),
+      routes: <String,WidgetBuilder>{
+        '/home': (BuildContext context) => new StudentHome(),
+        '/login': (BuildContext context) => new MyApp(),
+      },
       debugShowCheckedModeBanner: false,
     );
   }

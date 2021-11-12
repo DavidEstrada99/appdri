@@ -45,106 +45,104 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    final content = Column(
-      children: <Widget>[
-        Container(
-          height: 80.0,
-          width: 190.0,
-          padding: EdgeInsets.only(top: 40),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(200)),
-          child: Center(
-            child: Image.asset('asset/images/logo-ipn.png'),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(10),
-          child: TextField(
-            controller: _text,
-            autofocus: true,
-            keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Email',
-              errorText: !_validate ? 'Tiene que ser un email válido' : null,
+    return Scaffold(
+    body: SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          Container(
+            height: 80.0,
+            width: 190.0,
+            padding: EdgeInsets.only(top: 40),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(200)),
+            child: Center(
+              child: Image.asset('asset/images/logo-ipn.png'),
             ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(10),
-          child: TextField(
-              controller: _textPwd,
-              obscureText: true,
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: TextField(
+              controller: _text,
+              autofocus: true,
+              keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Contraseña',
-                  hintText: 'Introduce la contraseña')),
-        ),
-        Container(
-          height: 50,
-          width: 250,
-          decoration: BoxDecoration(
-              color: _validate && _validatePwd
-                  ? Color.fromARGB(255, 132, 43, 87)
-                  : Colors.black12,
-              borderRadius: BorderRadius.circular(20)),
-          child: TextButton(
-            onPressed: !_validate || !_validatePwd
-                ? null
-                : () {
-                    loginInput(_text.text, _textPwd.text);
-                  },
-            child: Text(
-              'Iniciar Sesión',
-              style: TextStyle(color: Colors.white, fontSize: 25),
+                border: OutlineInputBorder(),
+                labelText: 'Email',
+                errorText: !_validate ? 'Tiene que ser un email válido' : null,
+              ),
             ),
           ),
-        ),
-        Container(
-          height: 50,
-          width: 250,
-          margin: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              color: _validate && _validatePwd
-                  ? Color.fromARGB(255, 132, 43, 87)
-                  : Colors.black12,
-              borderRadius: BorderRadius.circular(20)),
-          child: TextButton(
-            onPressed: !_validate || !_validatePwd
-                ? null
-                : () {
-                    /*auth.createUserWithEmailAndPassword(email: _text.text, password: _textPwd.text).then((_){
-                      //Navigator.push(context, MaterialPageRoute(builder: (_) => Verify()));
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Verify()));
-                    });*/
-                    singUp(_text.text, _textPwd.text);
-                  },
-            child: Text(
-              'Crear cuenta',
-              style: TextStyle(color: Colors.white, fontSize: 25),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: TextField(
+                controller: _textPwd,
+                obscureText: true,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Contraseña',
+                    hintText: 'Introduce la contraseña')),
+          ),
+          Container(
+            height: 50,
+            width: 250,
+            decoration: BoxDecoration(
+                color: _validate && _validatePwd
+                    ? Color.fromARGB(255, 132, 43, 87)
+                    : Colors.black12,
+                borderRadius: BorderRadius.circular(20)),
+            child: TextButton(
+              onPressed: !_validate || !_validatePwd
+                  ? null
+                  : () {
+                      loginInput(_text.text, _textPwd.text);
+                    },
+              child: Text(
+                'Iniciar Sesión',
+                style: TextStyle(color: Colors.white, fontSize: 25),
+              ),
             ),
           ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(child: Text('Olvidé mi contraseña'), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => RestorePwd())) )
-          ]
-        ),
-        Conditional.single(
-            context: context,
-            conditionBuilder: (BuildContext context) => _validUser,
-            widgetBuilder: (BuildContext context) => Text(''),
-            fallbackBuilder: (BuildContext context) => Container(
-                  height: 100,
-                  width: 300,
-                  child: Text(
-                    'Usuario o contraseña inválido',
-                    style: TextStyle(color: Colors.red, fontSize: 16),
-                  ),
-                ))
-      ],
-    );
-    return content;
+          Container(
+            height: 50,
+            width: 250,
+            margin: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: _validate && _validatePwd
+                    ? Color.fromARGB(255, 132, 43, 87)
+                    : Colors.black12,
+                borderRadius: BorderRadius.circular(20)),
+            child: TextButton(
+              onPressed: !_validate || !_validatePwd
+                  ? null
+                  : () {
+                      singUp(_text.text, _textPwd.text);
+                    },
+              child: Text(
+                'Crear cuenta',
+                style: TextStyle(color: Colors.white, fontSize: 25),
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(child: Text('¿Has olvidado tu contraseña?'), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => RestorePwd())) )
+            ]
+          ),
+          Conditional.single(
+              context: context,
+              conditionBuilder: (BuildContext context) => _validUser,
+              widgetBuilder: (BuildContext context) => Text(''),
+              fallbackBuilder: (BuildContext context) => Container(
+                    height: 100,
+                    width: 300,
+                    child: Text(
+                      'Usuario o contraseña inválido',
+                      style: TextStyle(color: Colors.red, fontSize: 16),
+                    ),
+                  ))
+        ],
+      ),
+    ));
   }
 
   void validateMyInput() {
