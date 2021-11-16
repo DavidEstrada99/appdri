@@ -114,6 +114,7 @@ class _LoginState extends State<Login> {
               onPressed: !_validate || !_validatePwd
                   ? null
                   : () {
+
                       singUp(_text.text, _textPwd.text);
                     },
               child: Text(
@@ -122,10 +123,12 @@ class _LoginState extends State<Login> {
               ),
             ),
           ),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextButton(child: Text('¿Has olvidado tu contraseña?'), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => RestorePwd())) )
+
             ]
           ),
           Conditional.single(
