@@ -267,10 +267,10 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
                   color: Color.fromARGB(255, 132, 43, 87),
                 ),
                 child: Text(
-                  'Drawer Header',
+                  'D.R.I',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 80,
                   ),
                 ),
               ),
