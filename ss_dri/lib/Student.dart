@@ -27,7 +27,8 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
   final Stream<QuerySnapshot> _usersStream =
       FirebaseFirestore.instance.collection('Eventos').snapshots();
 
-  Future buildEvents() async {
+  /* Lectura de la base de datos. solo se lee una vez*/ 
+  /*Future buildEvents() async {
     final firestoreInstance = FirebaseFirestore.instance;
     try {
       //Example event
@@ -49,7 +50,7 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
           int id = -1;
           data.forEach((key, value) {
             //por cada elemento en el documento
-            if (key == "eventDate") {
+            if (key == "FechaInicio") {
               for (var day in value) {
                 //por cada fecha
                 var eventDate =
@@ -91,12 +92,12 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
     } catch (e) {
       print(e);
     }
-  }
+  }*/
 
   @override
   void initState() {
     super.initState();
-    buildEvents();
+    //buildEvents();
     realTime();
     final _selectedDay = DateTime.now();
     _events = {};
@@ -131,6 +132,7 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
     print('CALLBACK: _onCalendarCreated');
   }
 
+  /*Lectura a tiempo real de la base. Detecta cambios*/ 
   void realTime() {
     _usersStream.listen((snapshotData) {
       if (snapshotData.size <= 0) {
@@ -150,7 +152,7 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
           int id = -1;
           docDataMap.forEach((key, value) {
             //por cada elemento en el documento
-            if (key == "eventDate") {
+            if (key == "FechaInicio") {
               for (var day in value) {
                 //por cada fecha
                 var eventDate =
@@ -208,7 +210,7 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
           int id = -1;
           docDataMap.forEach((key, value) {
             //por cada elemento en el documento
-            if (key == "eventDate") {
+            if (key == "FechaInicio") {
               for (var day in value) {
                 //por cada fecha
                 var eventDate =
