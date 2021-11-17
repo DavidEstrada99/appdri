@@ -2,7 +2,7 @@
     package="com.ipn.ssdri">
    <application
         android:name=".Application"  
-        android:label="formación de líderes"
+        android:label="D.R.I app"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
@@ -40,4 +40,5 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>
