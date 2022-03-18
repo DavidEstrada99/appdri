@@ -30,7 +30,7 @@ dependencies:
   firebase_auth: ^1.1.1
   flutter_conditional_rendering: ^2.0.0
   cloud_firestore: ^2.3.0
-  flutter_local_notifications: ^6.0.0
+  flutter_local_notifications: ^5.0.0+1
   firebase_messaging: ^10.0.3
 
 
