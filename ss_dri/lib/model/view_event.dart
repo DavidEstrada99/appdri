@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'event.dart';
+import 'notification_service.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class EventDetailsPage extends StatelessWidget {
   final EventModel event;
   const EventDetailsPage({Key key, this.event}) : super(key: key);
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return UpdateText(event: event);
   }
 }
@@ -25,15 +27,14 @@ class _UpdateTextState extends State {
 
   String textButtom = 'Suscribirse';
   Icon textIcon = Icon(Icons.subscriptions);
- 
+
   changeText() {
     setState(() {
-      textButtom = 'Suscrito'; 
+      textButtom = 'Suscrito';
       textIcon = Icon(Icons.subscriptions_outlined);
     });
-    
   }
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,8 +43,7 @@ class _UpdateTextState extends State {
         backgroundColor: Color.fromARGB(255, 132, 43, 87),
         centerTitle: true,
       ),
-      body:
-      SingleChildScrollView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +57,7 @@ class _UpdateTextState extends State {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(left: 10, top:20),
+              margin: EdgeInsets.only(left: 10, top: 20),
               child: Text(
                 event.description,
                 style: TextStyle(color: Colors.black, fontSize: 18),
@@ -67,12 +67,20 @@ class _UpdateTextState extends State {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => changeText(),
+        onPressed: () {
+          changeText();
+          int id = 0;
+          for (int i = 0; i < event.id.length; i++) {
+            id = id + event.id.codeUnitAt(i);
+          }
+          print("El id es: $id");
+          NotificationService().CreatingNotifications(
+              id, event.title, event.description, event.eventDate);
+        }, //=> changeText(),
         icon: textIcon,
         backgroundColor: Color.fromARGB(255, 132, 43, 87),
         label: Text('$textButtom',
-                    style:
-                        TextStyle(color: Colors.white, fontSize: 16)),
+            style: TextStyle(color: Colors.white, fontSize: 16)),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
