@@ -1,15 +1,14 @@
-import 'event.dart';
-import 'notification_service.dart';
-import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:link_text/link_text.dart';
-import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter/material.dart';
+import 'event.dart';
 
-class EventDetailsPage extends StatelessWidget {
+class EventDetailsPageEmpty extends StatelessWidget {
   final EventModel event;
-  const EventDetailsPage({Key key, this.event}) : super(key: key);
+  const EventDetailsPageEmpty({Key key, this.event}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return UpdateText(event: event);
   }
 }
@@ -26,20 +25,56 @@ class _UpdateTextState extends State {
   EventModel event;
   _UpdateTextState({this.event});
 
+  String id;
   String _url;
-  String textButtom = 'Suscribirse';
-  Icon textIcon = Icon(Icons.subscriptions);
+  String textButtom;
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  Icon textIcon;
 
   changeText() {
     setState(() {
-      textButtom = 'Suscrito';
+  //    guardar_pref('Suscrito',event.id);
+      textButtom = 'Suscrito'; 
       textIcon = Icon(Icons.subscriptions_outlined);
     });
   }
 
+  Future<void> guardar_pref(boton, id) async{
+    SharedPreferences pref = await _prefs;
+
+    await pref.setString('id', id);
+    await pref.setString('boton', boton);
+  }
+
+  Future<void> mostrar_pref() async{
+    SharedPreferences pref = await _prefs;
+
+    textButtom = await pref.getString('boton');
+    id = await pref.getString('id');
+
+    print(id);
+
+    if(id==''){
+      if(id==null){
+        textButtom = "Suscribirse";
+        textIcon = Icon(Icons.subscriptions);
+      }
+    }
+    print("id: "+id);
+    textIcon = Icon(Icons.place);
+  }
+ 
    @override
   void initState() {
     super.initState();
+    if(event.suscription){
+      textButtom = 'Suscrito';
+      textIcon = Icon(Icons.subscriptions_outlined);
+    }else{
+ //     mostrar_pref();
+      textButtom = 'Suscribirse';
+      textIcon = Icon(Icons.subscriptions);
+    }
     if(event.url==""){
       _url="";
     }else{
@@ -69,7 +104,7 @@ class _UpdateTextState extends State {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(left: 10, top: 20),
+              margin: EdgeInsets.only(left: 10, top:20),
               child: Text(
                 event.description,
                 style: TextStyle(color: Colors.black, fontSize: 18),
@@ -88,20 +123,22 @@ class _UpdateTextState extends State {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          changeText();
-          int id = 0;
-          for (int i = 0; i < event.id.length; i++) {
-            id = id + event.id.codeUnitAt(i);
-          }
-          print("El id es: $id");
-          NotificationService().CreatingNotifications(
-              id, event.title, event.description, event.eventDate);
-        },
+        onPressed: () => showDialog<String>(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            title: const Text('Aviso'),
+            content: const Text('Este evento es obligatorio y no necesitas suscribirte para recibir la notificación'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'OK'),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        ),
         icon: textIcon,
         backgroundColor: Color.fromARGB(255, 132, 43, 87),
-        label: Text('$textButtom',
-            style: TextStyle(color: Colors.white, fontSize: 16)),
+        label: Text('$textButtom', style: TextStyle(color: Colors.white, fontSize: 16)),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
