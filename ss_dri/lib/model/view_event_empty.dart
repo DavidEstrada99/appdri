@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:link_text/link_text.dart';
 import 'package:flutter/material.dart';
 import 'event.dart';
 
@@ -25,6 +26,7 @@ class _UpdateTextState extends State {
   _UpdateTextState({this.event});
 
   String id;
+  String _url;
   String textButtom;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   Icon textIcon;
@@ -73,6 +75,11 @@ class _UpdateTextState extends State {
       textButtom = 'Suscribirse';
       textIcon = Icon(Icons.subscriptions);
     }
+    if(event.url==""){
+      _url="";
+    }else{
+      _url='http://'+event.url;
+    }
   }
 
   @override
@@ -103,6 +110,16 @@ class _UpdateTextState extends State {
                 style: TextStyle(color: Colors.black, fontSize: 18),
               ),
             ),
+            Container(
+              margin: EdgeInsets.only(left: 10, top: 20),
+              child: LinkText(
+                _url,
+                textAlign: TextAlign.center,
+                // You can optionally handle link tap event by yourself
+                // onLinkTap: (url) => ...
+              ),
+            ),
+
           ],
         ),
       ),
