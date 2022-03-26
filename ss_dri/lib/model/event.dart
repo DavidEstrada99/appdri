@@ -10,6 +10,7 @@ class EventModel{
 
   EventModel({this.id, this.title, this.url, this.suscription, this.description, this.eventDate});
 
+
   factory EventModel.fromMap(Map<String, dynamic> data) {
     if (data == null) return null;
 

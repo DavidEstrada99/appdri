@@ -119,6 +119,7 @@ class _UpdateTextState extends State {
                 // onLinkTap: (url) => ...
               ),
             ),
+
           ],
         ),
       ),
