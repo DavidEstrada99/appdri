@@ -1,15 +1,13 @@
-//import 'package:firebase_helpers/firebase_helpers.dart';
 import 'dart:convert';
-
 
 class EventModel{
   final String id;
   final String title;
-  final String degree;
   final String description;
   final DateTime eventDate;
+  final bool suscription;
 
-  EventModel({this.id, this.title, this.degree, this.description, this.eventDate});
+  EventModel({this.id, this.title, this.suscription, this.description, this.eventDate});
 
   factory EventModel.fromMap(Map<String, dynamic> data) {
     if (data == null) return null;
@@ -18,8 +16,7 @@ class EventModel{
       title: data['title'],
       description: data['body'],
       eventDate: data['FechaInicio'],
-      //eventDate: DateTime.fromMillisecondsSinceEpoch(data['FechaInicio']),
-      degree: data['highestDegree'],
+      suscription: data['Suscripcion'],
     );
   }
 
@@ -31,8 +28,7 @@ class EventModel{
       title: data['title'],
       description: data['body'],
       eventDate: data['FechaInicio'].toDate(),
-      //eventDate: DateTime.fromMillisecondsSinceEpoch(data['FechaInicio']),
-      degree: data['highestDegree'],
+      suscription: data['Suscripcion'],
     );
   }
 
@@ -43,7 +39,7 @@ class EventModel{
 
   @override
   String toString() {
-    return 'EventModel(title: $title, id: $id, description: $description, date: $eventDate, highestDegree: $degree)';
+    return 'EventModel(title: $title, id: $id, description: $description, date: $eventDate, suscripción: $suscription)';
   }
 
   Map<String,dynamic> toMap() {
@@ -52,8 +48,7 @@ class EventModel{
       "id":id,
       "body": description,
       "FechaInicio":eventDate,
-      //"FechaInicio":eventDate.millisecondsSinceEpoch,
-      "highestDegree":degree,
+      "Suscripcion":suscription,
     };
   }
 }

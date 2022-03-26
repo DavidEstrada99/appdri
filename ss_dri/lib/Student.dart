@@ -3,9 +3,11 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'model/event_firestore_service.dart';
 import 'package:flutter/material.dart';
+import 'model/view_event_empty.dart';
 import 'package:intl/intl.dart';
 import 'model/view_event.dart';
 import 'model/event.dart';
+
 
 final Map<DateTime, List> _holidays = {
   DateTime(2022, 1, 1): ['New Year\'s Day'],
@@ -148,11 +150,13 @@ class _StudentState extends State<StudentHome> with TickerProviderStateMixin {
                   title: Text(event.title),
                   subtitle: Text(DateFormat("EEEE, dd MMMM, yyyy",'es_ES').format(event.eventDate)),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EventDetailsPage( event: event,)
-                      ));
+                    if(event.suscription){  //evento con notificación obligatoria.
+                      Navigator.push(context, MaterialPageRoute( 
+                        builder: (_) => EventDetailsPageEmpty( event: event,)));
+                    }else{                  //evento con notificación activable.
+                      Navigator.push(context, MaterialPageRoute( 
+                        builder: (_) => EventDetailsPage( event: event,)));
+                    }
                   },
                 )),
               ],
