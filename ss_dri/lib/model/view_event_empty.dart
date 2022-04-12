@@ -78,7 +78,7 @@ class _UpdateTextState extends State {
     if(event.url==""){
       _url="";
     }else{
-      _url='http://'+event.url;
+      _url='https://'+event.url;
     }
   }
 
